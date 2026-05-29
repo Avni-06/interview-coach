@@ -1,1 +1,206 @@
 @import "tailwindcss";
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --neon: #00ff88;
+  --neon-blue: #00d4ff;
+  --neon-pink: #ff006e;
+  --dark: #050508;
+  --dark2: #0d0d14;
+  --glass: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'DM Mono', monospace;
+}
+
+body {
+  background: var(--dark);
+  color: #fff;
+  font-family: var(--font-display);
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--dark2); }
+::-webkit-scrollbar-thumb { background: var(--neon); border-radius: 2px; }
+
+/* Glowing orb background */
+.orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.15;
+  pointer-events: none;
+  animation: float 8s ease-in-out infinite;
+  z-index: 0;
+}
+
+.orb-1 {
+  width: 500px; height: 500px;
+  background: var(--neon);
+  top: -100px; left: -100px;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 400px; height: 400px;
+  background: var(--neon-blue);
+  bottom: -100px; right: -100px;
+  animation-delay: -3s;
+}
+
+.orb-3 {
+  width: 300px; height: 300px;
+  background: var(--neon-pink);
+  top: 50%; left: 50%;
+  animation-delay: -5s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(30px, -30px) scale(1.05); }
+  66% { transform: translate(-20px, 20px) scale(0.95); }
+}
+
+/* Glass card */
+.glass-card {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+}
+
+/* Neon input */
+.neon-input {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 14px;
+  width: 100%;
+  outline: none;
+  transition: all 0.3s;
+}
+
+.neon-input:focus {
+  border-color: var(--neon);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
+}
+
+.neon-input::placeholder { color: rgba(255,255,255,0.3); }
+
+/* Neon button */
+.neon-btn {
+  background: var(--neon);
+  color: #000;
+  border: none;
+  border-radius: 12px;
+  padding: 14px 28px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 15px;
+  cursor: pointer;
+  transition: all 0.3s;
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.neon-btn:hover {
+  box-shadow: 0 0 30px rgba(0, 255, 136, 0.4);
+  transform: translateY(-2px);
+}
+
+.neon-btn:active { transform: translateY(0); }
+
+.neon-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* 3D card tilt */
+.tilt-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transform-style: preserve-3d;
+}
+
+.tilt-card:hover {
+  box-shadow: 0 20px 60px rgba(0, 255, 136, 0.15);
+}
+
+/* Fade in animation */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up {
+  animation: fadeUp 0.6s ease forwards;
+}
+
+.fade-up-delay-1 { animation-delay: 0.1s; opacity: 0; }
+.fade-up-delay-2 { animation-delay: 0.2s; opacity: 0; }
+.fade-up-delay-3 { animation-delay: 0.3s; opacity: 0; }
+.fade-up-delay-4 { animation-delay: 0.4s; opacity: 0; }
+
+/* Neon text */
+.neon-text {
+  color: var(--neon);
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+}
+
+.neon-blue-text {
+  color: var(--neon-blue);
+  text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+}
+
+/* Tag/badge */
+.neon-badge {
+  background: rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.3);
+  color: var(--neon);
+  border-radius: 999px;
+  padding: 4px 14px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+}
+
+/* Progress bar */
+.progress-track {
+  background: rgba(255,255,255,0.08);
+  border-radius: 999px;
+  height: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--neon), var(--neon-blue));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+}
+
+/* Pulse dot */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.pulse-dot {
+  width: 8px; height: 8px;
+  background: var(--neon);
+  border-radius: 50%;
+  animation: pulse 1.5s ease infinite;
+  box-shadow: 0 0 8px var(--neon);
+}
