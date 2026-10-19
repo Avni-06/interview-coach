@@ -17,12 +17,17 @@ const ROLES = [
   { title: 'Product Manager', icon: Compass, desc: 'Strategy, prioritization, user research' },
 ];
 
+const CONTEXT_MIN = 30;
+const CONTEXT_MAX = 4000;
+
 const Dashboard = () => {
   const [sessions, setSessions] = useState([]);
   const [sessionsLoaded, setSessionsLoaded] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
   const [interviewType, setInterviewType] = useState('mixed');
   const [difficulty, setDifficulty] = useState('junior');
+  const [contextKind, setContextKind] = useState('jd');
+  const [contextText, setContextText] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuthStore();
@@ -40,7 +45,12 @@ const Dashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const { data } = await API.post('/sessions', { role: selectedRole, interviewType, difficulty });
+      const { data } = await API.post('/sessions', {
+        role: selectedRole,
+        interviewType,
+        difficulty,
+        ...(contextText.trim() && { contextKind, contextText: contextText.trim() }),
+      });
       navigate(`/interview/${data._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not start the interview. Try again.');
@@ -54,6 +64,8 @@ const Dashboard = () => {
   const overall = average(sessionAvgs);
   const best = sessionAvgs.length ? Math.max(...sessionAvgs) : null;
   const firstName = user?.name?.split(' ')[0];
+  const contextLen = contextText.trim().length;
+  const contextTooShort = contextLen > 0 && contextLen < CONTEXT_MIN;
 
   return (
     <>
@@ -103,10 +115,38 @@ const Dashboard = () => {
               </div>
             </div>
 
+            <details className="tailor">
+              <summary>Tailor questions to a job description or resume <span className="muted">(optional)</span></summary>
+              <div className="tailor-body">
+                <div className="seg" role="radiogroup" aria-label="Type of text">
+                  {[['jd', 'Job description'], ['resume', 'Resume']].map(([value, label]) => (
+                    <button key={value} type="button" role="radio" aria-checked={contextKind === value} className="seg-btn" onClick={() => setContextKind(value)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  className="input"
+                  rows={7}
+                  maxLength={CONTEXT_MAX}
+                  aria-label={contextKind === 'jd' ? 'Job description' : 'Resume'}
+                  placeholder={contextKind === 'jd' ? 'Paste the job description for the role you are applying to.' : 'Paste the text of your resume. Questions will probe your projects and skills.'}
+                  value={contextText}
+                  onChange={(e) => setContextText(e.target.value)}
+                />
+                <div className="answer-meta" style={{ marginTop: 0 }}>
+                  <span className="hint">
+                    {contextTooShort ? `Add at least ${CONTEXT_MIN} characters, or clear this box.` : 'Emails and phone numbers are removed before the text is used.'}
+                  </span>
+                  <span className="hint num">{contextLen} / {CONTEXT_MAX}</span>
+                </div>
+              </div>
+            </details>
+
             {error && <div className="alert" role="alert" style={{ marginTop: 12 }}>{error}</div>}
 
             <div style={{ marginTop: 16 }}>
-              <button className="btn btn-primary" onClick={startInterview} disabled={loading || !selectedRole}>
+              <button className="btn btn-primary" onClick={startInterview} disabled={loading || !selectedRole || contextTooShort}>
                 {loading ? 'Starting…' : selectedRole ? `Start ${selectedRole} interview` : 'Select a role to start'}
               </button>
             </div>

@@ -63,4 +63,12 @@ describe('session options', () => {
     expect(createSessionSchema.safeParse({ role: 'Frontend Dev', interviewType: 'trivia' }).success).toBe(false);
     expect(createSessionSchema.safeParse({ role: 'Frontend Dev', difficulty: 'god' }).success).toBe(false);
   });
+
+  test('createSession accepts optional context and rejects a too-short or oversized one', () => {
+    const ok = createSessionSchema.safeParse({ role: 'Backend Dev', contextKind: 'resume', contextText: 'Built REST APIs with Node and MongoDB for a college project.' });
+    expect(ok.success).toBe(true);
+    expect(createSessionSchema.safeParse({ role: 'Backend Dev', contextText: 'too short' }).success).toBe(false);
+    expect(createSessionSchema.safeParse({ role: 'Backend Dev', contextText: 'x'.repeat(4001) }).success).toBe(false);
+    expect(createSessionSchema.safeParse({ role: 'Backend Dev', contextKind: 'linkedin' }).success).toBe(false);
+  });
 });

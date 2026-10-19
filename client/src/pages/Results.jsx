@@ -53,7 +53,11 @@ const Results = () => {
 
   const avg = average(session.scores) ?? 0;
   const rubric = averageRubric(session.evaluations);
-  const meta = [TYPE_LABELS[session.interviewType], LEVEL_LABELS[session.difficulty]].filter(Boolean).join(', ');
+  const meta = [
+    TYPE_LABELS[session.interviewType],
+    LEVEL_LABELS[session.difficulty],
+    session.contextKind && `tailored to your ${session.contextKind === 'resume' ? 'resume' : 'job description'}`,
+  ].filter(Boolean).join(', ');
 
   return (
     <>

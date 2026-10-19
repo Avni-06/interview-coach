@@ -4,17 +4,20 @@ const Session = require('../models/Session');
 const { protect } = require('../middleware/authMiddleware');
 const { validate, validateId } = require('../middleware/validate');
 const { createSessionSchema, sessionAnswerSchema } = require('../validators/schemas');
+const { sanitizeContext } = require('../utils/text');
 
 // POST /api/sessions — create new session
 router.post('/', protect, validate(createSessionSchema), async (req, res) => {
   try {
-    const { role, interviewType, difficulty } = req.body;
+    const { role, interviewType, difficulty, contextKind, contextText } = req.body;
+    const context = contextText ? sanitizeContext(contextText) : '';
 
     const session = await Session.create({
       user: req.user._id,
       role,
       interviewType,
       difficulty,
+      ...(context && { contextKind: contextKind || 'jd', contextText: context }),
       questions: [],
       answers: [],
       feedback: [],

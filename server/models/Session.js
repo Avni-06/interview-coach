@@ -20,6 +20,14 @@ const sessionSchema = new mongoose.Schema({
     enum: ['intern', 'junior', 'mid'],
     default: 'junior',
   },
+  contextKind: {
+    type: String,
+    enum: ['jd', 'resume'],
+  },
+  contextText: {
+    type: String,
+    maxlength: 4000,
+  },
   questions: [String],
   answers: [String],
   feedback: [String],
