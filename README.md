@@ -2,7 +2,7 @@
 
 > Practice interviews with AI-powered feedback. Pick a role, answer questions, and get scored instantly.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-00ff88?style=for-the-badge&logo=vercel&logoColor=black)](https://interview-coach-cpmapjp47-avni-projects.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-00ff88?style=for-the-badge&logo=vercel&logoColor=black)](https://interview-coach-sable.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-View%20Code-181717?style=for-the-badge&logo=github)](https://github.com/Avni-06/interview-coach)
 [![Node.js](https://img.shields.io/badge/Node.js-22+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
 [![React](https://img.shields.io/badge/React-18-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
@@ -131,7 +131,7 @@ interview-coach/
 
 | Service | Platform | URL |
 |---------|----------|-----|
-| Frontend | Vercel | [interview-coach-cpmapjp47-avni-projects.vercel.app](https://interview-coach-cpmapjp47-avni-projects.vercel.app) |
+| Frontend | Vercel | [interview-coach-sable.vercel.app](https://interview-coach-sable.vercel.app) |
 | Backend | Render | Auto-deployed from `server/` folder |
 | Database | MongoDB Atlas | Free tier (512MB) |
 
