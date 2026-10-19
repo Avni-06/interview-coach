@@ -2,9 +2,11 @@ const express = require('express');
 const router = express.Router();
 const Session = require('../models/Session');
 const { protect } = require('../middleware/authMiddleware');
+const { validate, validateId } = require('../middleware/validate');
+const { createSessionSchema, sessionAnswerSchema } = require('../validators/schemas');
 
 // POST /api/sessions — create new session
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, validate(createSessionSchema), async (req, res) => {
   try {
     const { role } = req.body;
 
@@ -19,7 +21,8 @@ router.post('/', protect, async (req, res) => {
 
     res.status(201).json(session);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
@@ -29,12 +32,13 @@ router.get('/', protect, async (req, res) => {
     const sessions = await Session.find({ user: req.user._id }).sort({ createdAt: -1 });
     res.json(sessions);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 // GET /api/sessions/:id — get single session
-router.get('/:id', protect, async (req, res) => {
+router.get('/:id', protect, validateId(), async (req, res) => {
   try {
     const session = await Session.findById(req.params.id);
 
@@ -48,12 +52,13 @@ router.get('/:id', protect, async (req, res) => {
 
     res.json(session);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 // POST /api/sessions/:id/answer — submit an answer
-router.post('/:id/answer', protect, async (req, res) => {
+router.post('/:id/answer', protect, validateId(), validate(sessionAnswerSchema), async (req, res) => {
   try {
     const { answer } = req.body;
     const session = await Session.findById(req.params.id);
@@ -62,12 +67,17 @@ router.post('/:id/answer', protect, async (req, res) => {
       return res.status(404).json({ message: 'Session not found' });
     }
 
+    if (session.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
     session.answers.push(answer);
     await session.save();
 
     res.json(session);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 

@@ -3,13 +3,15 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { validate } = require('../middleware/validate');
+const { registerSchema, loginSchema } = require('../validators/schemas');
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: '30d' });
 };
 
 // POST /api/auth/register
-router.post('/register', async (req, res) => {
+router.post('/register', validate(registerSchema), async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -34,12 +36,13 @@ router.post('/register', async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
 // POST /api/auth/login
-router.post('/login', async (req, res) => {
+router.post('/login', validate(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -60,7 +63,8 @@ router.post('/login', async (req, res) => {
       token: generateToken(user._id),
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
