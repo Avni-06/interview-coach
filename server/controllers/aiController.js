@@ -7,9 +7,20 @@ const text = z
   .transform((v) => (Array.isArray(v) ? v.join(' ') : v))
   .pipe(z.string().min(1));
 
+// Models sometimes wrap or rename the list; accept strings or {question|text} objects.
+const questionItem = z
+  .union([
+    z.string(),
+    z.object({ question: z.string() }).transform((o) => o.question),
+    z.object({ text: z.string() }).transform((o) => o.text),
+  ])
+  .pipe(z.string().min(5));
+
 const questionsSchema = z
-  .object({ questions: z.array(z.string().min(5)).min(5) })
-  .transform((o) => ({ questions: o.questions.slice(0, 5) }));
+  .record(z.string(), z.unknown())
+  .transform((o) => (Array.isArray(o.questions) ? o.questions : Object.values(o).find(Array.isArray) || []))
+  .pipe(z.array(questionItem).min(5))
+  .transform((list) => ({ questions: list.slice(0, 5) }));
 
 const evaluationSchema = z.object({
   score: z.coerce.number().transform((n) => Math.min(10, Math.max(1, Math.round(n)))),

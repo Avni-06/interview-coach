@@ -14,7 +14,7 @@
 ## Features
 
 - 6 role types — Frontend, Backend, Full Stack, Data Science, DevOps, Product Manager
-- AI-generated questions — unique questions every session using Groq LLaMA 3.3 70B
+- AI-generated questions — unique questions every session using Groq (gpt-oss-120b)
 - Instant AI feedback — score out of 10, what was good, what was missing, and a model answer
 - Results dashboard — overall score with per-question breakdown
 - JWT authentication — secure register and login
@@ -29,7 +29,7 @@
 | Frontend | React 18, Vite, Tailwind CSS, Zustand |
 | Backend | Node.js, Express.js |
 | Database | MongoDB Atlas (Mongoose) |
-| AI | Groq API (LLaMA 3.3 70B Versatile) |
+| AI | Groq API (gpt-oss-120b, configurable via GROQ_MODEL) |
 | Auth | JWT + bcryptjs |
 | Deployment | Vercel (frontend) + Render (backend) |
 
@@ -141,7 +141,7 @@ interview-coach/
 ## How the AI Works
 
 1. When a session starts, the app sends the selected role to the Groq API
-2. LLaMA 3.3 70B generates 5 role-specific interview questions as a JSON array
+2. The LLM generates 5 role-specific interview questions as a JSON array
 3. When the user submits an answer, it is sent to Groq alongside the original question
 4. The AI returns a structured JSON object with a score, strengths, weaknesses, and a model answer
 5. All questions, answers, feedback and scores are persisted to MongoDB
