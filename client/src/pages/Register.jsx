@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import API from '../api/axios';
 import useAuthStore from '../store/authStore';
+import AuthLayout from '../components/AuthLayout';
 
 const Register = () => {
   const [form, setForm] = useState({ name: '', email: '', password: '' });
@@ -19,86 +20,47 @@ const Register = () => {
       login(data, data.token);
       navigate('/dashboard');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      setError(err.response?.data?.message || 'Could not reach the server. Try again in a few seconds.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '20px' }}>
-      <div className="orb orb-1" />
-      <div className="orb orb-2" />
-      <div className="orb orb-3" />
-
-      <div style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: '420px' }}>
-        <div className="fade-up" style={{ textAlign: 'center', marginBottom: '40px' }}>
-          <h1 style={{ fontSize: '42px', fontWeight: '800', lineHeight: 1.1 }}>
-            Join the<br />
-            <span className="neon-text">grind.</span>
-          </h1>
-          <p style={{ color: 'rgba(255,255,255,0.4)', marginTop: '10px', fontFamily: 'var(--font-mono)', fontSize: '13px' }}>
-            create your free account
-          </p>
-        </div>
-
-        <div className="glass-card fade-up fade-up-delay-1" style={{ padding: '36px' }}>
-          <h2 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '24px' }}>
-            Let's get you set up 🚀
-          </h2>
-
-          {error && (
-            <div style={{ background: 'rgba(255,0,110,0.1)', border: '1px solid rgba(255,0,110,0.3)', borderRadius: '10px', padding: '12px', marginBottom: '16px', color: '#ff006e', fontSize: '13px', fontFamily: 'var(--font-mono)' }}>
-              {error}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-            <div>
-              <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '6px' }}>YOUR NAME</label>
-              <input
-                type="text"
-                placeholder="Avni"
-                className="neon-input"
-                value={form.name}
-                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '6px' }}>EMAIL</label>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                className="neon-input"
-                value={form.email}
-                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                required
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '12px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)', display: 'block', marginBottom: '6px' }}>PASSWORD</label>
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="neon-input"
-                value={form.password}
-                onChange={(e) => setForm({ ...form, password: e.target.value })}
-                required
-              />
-            </div>
-            <button type="submit" className="neon-btn" disabled={loading} style={{ marginTop: '8px' }}>
-              {loading ? 'Creating account...' : 'Create Account →'}
-            </button>
-          </form>
-
-          <p style={{ textAlign: 'center', marginTop: '20px', fontSize: '13px', color: 'rgba(255,255,255,0.4)', fontFamily: 'var(--font-mono)' }}>
-            already have an account?{' '}
-            <Link to="/login" style={{ color: 'var(--neon)', textDecoration: 'none' }}>login</Link>
-          </p>
-        </div>
+    <AuthLayout>
+      <div>
+        <h1>Create your account</h1>
+        <p className="muted" style={{ marginTop: 6 }}>Practice with role-specific questions and get scored feedback.</p>
       </div>
-    </div>
+
+      {error && <div className="alert" role="alert">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <div className="field">
+          <label htmlFor="name">Name</label>
+          <input id="name" className="input" autoComplete="name"
+            value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required minLength={2} />
+        </div>
+        <div className="field">
+          <label htmlFor="email">Email</label>
+          <input id="email" type="email" className="input" autoComplete="email" placeholder="you@example.com"
+            value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
+        </div>
+        <div className="field">
+          <label htmlFor="password">Password</label>
+          <input id="password" type="password" className="input" autoComplete="new-password"
+            value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required minLength={6} />
+          <span className="hint">At least 6 characters.</span>
+        </div>
+        <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          {loading ? 'Creating account…' : 'Create account'}
+        </button>
+      </form>
+
+      <p className="auth-switch">
+        Already registered? <Link to="/login">Log in</Link>
+      </p>
+    </AuthLayout>
   );
 };
 

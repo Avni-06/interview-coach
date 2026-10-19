@@ -13,8 +13,18 @@ const loginSchema = z.object({
   password: z.string().min(1).max(100),
 });
 
+const INTERVIEW_TYPES = ['mixed', 'technical', 'behavioral', 'hr'];
+const DIFFICULTIES = ['intern', 'junior', 'mid'];
+
 const createSessionSchema = z.object({
   role: z.string().trim().min(2).max(60),
+  interviewType: z.enum(INTERVIEW_TYPES).default('mixed'),
+  difficulty: z.enum(DIFFICULTIES).default('junior'),
+  contextKind: z.enum(['jd', 'resume']).optional(),
+  contextText: z.string().trim().max(4000).optional(),
+}).refine((d) => !d.contextText || d.contextText.length >= 30, {
+  message: 'add at least 30 characters or leave it empty',
+  path: ['contextText'],
 });
 
 const startSchema = z.object({ sessionId: objectId });
@@ -30,6 +40,8 @@ const sessionAnswerSchema = z.object({
 });
 
 module.exports = {
+  INTERVIEW_TYPES,
+  DIFFICULTIES,
   registerSchema,
   loginSchema,
   createSessionSchema,

@@ -8,5 +8,5 @@
   <rect width="1200" height="630" fill="url(#g)"/>
   <text x="80" y="270" font-family="Arial, sans-serif" font-size="84" font-weight="700" fill="#ffffff">AI Mock Interview Coach</text>
   <text x="80" y="350" font-family="Arial, sans-serif" font-size="38" fill="#00ff88">Pick a role. Answer. Get scored instantly.</text>
-  <text x="80" y="540" font-family="Arial, sans-serif" font-size="30" fill="#9aa4bf">React · Node · MongoDB · Groq LLaMA 3.3</text>
+  <text x="80" y="540" font-family="Arial, sans-serif" font-size="30" fill="#9aa4bf">React · Node · MongoDB · Groq</text>
 </svg>

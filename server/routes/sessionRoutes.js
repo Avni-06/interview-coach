@@ -4,15 +4,20 @@ const Session = require('../models/Session');
 const { protect } = require('../middleware/authMiddleware');
 const { validate, validateId } = require('../middleware/validate');
 const { createSessionSchema, sessionAnswerSchema } = require('../validators/schemas');
+const { sanitizeContext } = require('../utils/text');
 
 // POST /api/sessions — create new session
 router.post('/', protect, validate(createSessionSchema), async (req, res) => {
   try {
-    const { role } = req.body;
+    const { role, interviewType, difficulty, contextKind, contextText } = req.body;
+    const context = contextText ? sanitizeContext(contextText) : '';
 
     const session = await Session.create({
       user: req.user._id,
       role,
+      interviewType,
+      difficulty,
+      ...(context && { contextKind: contextKind || 'jd', contextText: context }),
       questions: [],
       answers: [],
       feedback: [],
@@ -47,7 +52,7 @@ router.get('/:id', protect, validateId(), async (req, res) => {
     }
 
     if (session.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: 'Not authorized' });
     }
 
     res.json(session);
