@@ -2,6 +2,7 @@
 
 > Practice interviews with AI-powered feedback. Pick a role, answer questions, and get scored instantly.
 
+[![CI](https://github.com/Avni-06/interview-coach/actions/workflows/ci.yml/badge.svg)](https://github.com/Avni-06/interview-coach/actions/workflows/ci.yml)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-00ff88?style=for-the-badge&logo=vercel&logoColor=black)](https://interview-coach-sable.vercel.app)
 [![GitHub](https://img.shields.io/badge/GitHub-View%20Code-181717?style=for-the-badge&logo=github)](https://github.com/Avni-06/interview-coach)
 [![Node.js](https://img.shields.io/badge/Node.js-22+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)

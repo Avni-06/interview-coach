@@ -19,7 +19,7 @@ function applySecurity(app) {
       origin: (origin, cb) => {
         // no origin = curl / server-to-server / health checks
         if (!origin || allowed.includes(origin)) return cb(null, true);
-        return cb(new Error('Not allowed by CORS'));
+        return cb(Object.assign(new Error('Not allowed by CORS'), { status: 403 }));
       },
     })
   );

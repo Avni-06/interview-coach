@@ -47,7 +47,7 @@ router.get('/:id', protect, validateId(), async (req, res) => {
     }
 
     if (session.user.toString() !== req.user._id.toString()) {
-      return res.status(401).json({ message: 'Not authorized' });
+      return res.status(403).json({ message: 'Not authorized' });
     }
 
     res.json(session);
