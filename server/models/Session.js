@@ -14,6 +14,7 @@ const sessionSchema = new mongoose.Schema({
   answers: [String],
   feedback: [String],
   scores: [Number],
+  evaluations: [mongoose.Schema.Types.Mixed], // full AI feedback: score, good, missing, modelAnswer
   completed: {
     type: Boolean,
     default: false,
