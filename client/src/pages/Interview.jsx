@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircleCheck, CircleAlert, Lightbulb } from 'lucide-react';
 import API from '../api/axios';
 import Header from '../components/Header';
+import RubricBars from '../components/RubricBars';
 import { scoreLevel, scoreLabel } from '../lib/score';
 
 const MAX_LEN = 3000;
@@ -142,6 +143,11 @@ const Interview = () => {
                 <span className={`score-big text-${scoreLevel(feedback.score)}`}>{feedback.score}<small>/10</small></span>
                 <span className="section-title">{scoreLabel(feedback.score)}</span>
               </div>
+              {feedback.rubric && (
+                <div className="fb">
+                  <RubricBars rubric={feedback.rubric} />
+                </div>
+              )}
               <div className="fb fb-good">
                 <h3><CircleCheck size={16} /> What worked</h3>
                 <p>{feedback.good}</p>

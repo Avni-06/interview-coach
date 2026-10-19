@@ -8,11 +8,13 @@ const { createSessionSchema, sessionAnswerSchema } = require('../validators/sche
 // POST /api/sessions — create new session
 router.post('/', protect, validate(createSessionSchema), async (req, res) => {
   try {
-    const { role } = req.body;
+    const { role, interviewType, difficulty } = req.body;
 
     const session = await Session.create({
       user: req.user._id,
       role,
+      interviewType,
+      difficulty,
       questions: [],
       answers: [],
       feedback: [],

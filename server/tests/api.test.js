@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 jest.mock('../models/User', () => ({ findById: jest.fn(), findOne: jest.fn(), create: jest.fn() }));
-jest.mock('../models/Session', () => ({ findById: jest.fn(), find: jest.fn(), create: jest.fn() }));
+jest.mock('../models/Session', () => ({ findById: jest.fn(), find: jest.fn(), create: jest.fn(), findOneAndUpdate: jest.fn() }));
 jest.mock('../utils/llm', () => ({
   callJSON: jest.fn(),
   safeText: (s) => String(s),
@@ -51,6 +51,14 @@ describe('platform', () => {
   test('sets security headers (helmet)', async () => {
     const res = await request(app).get('/api/health');
     expect(res.headers['x-content-type-options']).toBe('nosniff');
+  });
+
+  test('allows any local dev origin and the production site', async () => {
+    for (const origin of ['http://localhost:5174', 'http://127.0.0.1:5173', 'https://interview-coach-sable.vercel.app']) {
+      const res = await request(app).get('/api/health').set('Origin', origin);
+      expect(res.status).toBe(200);
+      expect(res.headers['access-control-allow-origin']).toBe(origin);
+    }
   });
 
   test('blocks requests from a disallowed origin', async () => {
@@ -114,13 +122,31 @@ describe('ai', () => {
   });
 
   test('start generates and saves questions for a fresh session', async () => {
-    const s = makeSession(ME, { questions: [] });
-    Session.findById.mockResolvedValue(s);
-    callJSON.mockResolvedValue({ questions: ['q1?????', 'q2?????', 'q3?????', 'q4?????', 'q5?????'] });
+    const qs = ['q1?????', 'q2?????', 'q3?????', 'q4?????', 'q5?????'];
+    Session.findById.mockResolvedValue(makeSession(ME, { questions: [] }));
+    Session.findOneAndUpdate.mockResolvedValue({ questions: qs });
+    callJSON.mockResolvedValue({ questions: qs });
     const res = await request(app).post('/api/ai/start').set(auth).send({ sessionId: SID });
     expect(res.status).toBe(200);
-    expect(res.body.questions).toHaveLength(5);
-    expect(s.save).toHaveBeenCalled();
+    expect(res.body.questions).toEqual(qs);
+    expect(Session.findOneAndUpdate).toHaveBeenCalledWith(
+      { _id: SID, 'questions.0': { $exists: false } },
+      { $set: { questions: qs } },
+      { new: true }
+    );
+  });
+
+  test('concurrent start calls share one LLM call and return the same questions', async () => {
+    const qs = ['q1?????', 'q2?????', 'q3?????', 'q4?????', 'q5?????'];
+    Session.findById.mockResolvedValue(makeSession(ME, { questions: [] }));
+    // first writer wins; the second write matches nothing (null) and falls back to the stored questions
+    Session.findOneAndUpdate.mockResolvedValueOnce({ questions: qs }).mockResolvedValueOnce(null);
+    callJSON.mockImplementation(() => new Promise((r) => setTimeout(() => r({ questions: qs }), 30)));
+    const post = () => request(app).post('/api/ai/start').set(auth).send({ sessionId: SID });
+    const [a, b] = await Promise.all([post(), post()]);
+    expect(a.status).toBe(200);
+    expect(b.status).toBe(200);
+    expect(callJSON).toHaveBeenCalledTimes(1);
   });
 
   test('evaluate on someone else\'s session is forbidden (IDOR guard)', async () => {
@@ -143,14 +169,14 @@ describe('ai', () => {
   test('evaluate stores the full feedback and returns it', async () => {
     const s = makeSession(ME);
     Session.findById.mockResolvedValue(s);
-    callJSON.mockResolvedValue({ score: 7, good: 'g', missing: 'm', modelAnswer: 'ma' });
+    callJSON.mockResolvedValue({ score: 7, rubric: { correctness: 7, depth: 7, clarity: 7, structure: 7 }, good: 'g', missing: 'm', modelAnswer: 'ma' });
     const res = await request(app)
       .post('/api/ai/evaluate').set(auth)
       .send({ sessionId: SID, questionIndex: 0, answer: 'my answer' });
     expect(res.status).toBe(200);
     expect(res.body.score).toBe(7);
     expect(s.scores[0]).toBe(7);
-    expect(s.evaluations[0]).toMatchObject({ good: 'g', missing: 'm' });
+    expect(s.evaluations[0]).toMatchObject({ good: 'g', missing: 'm', rubric: { depth: 7 } });
   });
 
   test('evaluate marks the session completed on the last question', async () => {

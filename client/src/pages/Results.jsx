@@ -3,7 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { CircleCheck, CircleAlert, Lightbulb, Printer } from 'lucide-react';
 import API from '../api/axios';
 import Header from '../components/Header';
-import { average, scoreLevel, formatDate } from '../lib/score';
+import RadarChart from '../components/RadarChart';
+import RubricBars from '../components/RubricBars';
+import { average, scoreLevel, formatDate, averageRubric, TYPE_LABELS, LEVEL_LABELS } from '../lib/score';
 
 const summary = (s) =>
   s >= 8 ? 'Strong performance. You are well prepared for this role.'
@@ -50,6 +52,8 @@ const Results = () => {
   }
 
   const avg = average(session.scores) ?? 0;
+  const rubric = averageRubric(session.evaluations);
+  const meta = [TYPE_LABELS[session.interviewType], LEVEL_LABELS[session.difficulty]].filter(Boolean).join(', ');
 
   return (
     <>
@@ -58,7 +62,7 @@ const Results = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
           <div>
             <h1 className="page-title">{session.role} interview</h1>
-            <p className="page-sub">{formatDate(session.createdAt)}, {session.questions.length} questions</p>
+            <p className="page-sub">{formatDate(session.createdAt)}, {session.questions.length} questions{meta ? `, ${meta.toLowerCase()}` : ''}</p>
           </div>
           <div className="no-print" style={{ display: 'flex', gap: 8 }}>
             <button className="btn btn-secondary" onClick={() => window.print()}><Printer size={16} /> Print report</button>
@@ -74,6 +78,16 @@ const Results = () => {
           <div className="bar" style={{ marginTop: 16 }}><span style={{ width: `${avg * 10}%` }} /></div>
           <p style={{ marginTop: 14 }}>{summary(avg)}</p>
         </div>
+
+        {rubric && (
+          <>
+            <h2 className="section-title" style={{ marginTop: 32 }}>Skill breakdown</h2>
+            <div className="panel rubric-panel" style={{ marginTop: 12 }}>
+              <RadarChart rubric={rubric} />
+              <RubricBars rubric={rubric} />
+            </div>
+          </>
+        )}
 
         <h2 className="section-title" style={{ marginTop: 32 }}>Question breakdown</h2>
         <div className="panel" style={{ marginTop: 12 }}>

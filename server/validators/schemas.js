@@ -13,8 +13,13 @@ const loginSchema = z.object({
   password: z.string().min(1).max(100),
 });
 
+const INTERVIEW_TYPES = ['mixed', 'technical', 'behavioral', 'hr'];
+const DIFFICULTIES = ['intern', 'junior', 'mid'];
+
 const createSessionSchema = z.object({
   role: z.string().trim().min(2).max(60),
+  interviewType: z.enum(INTERVIEW_TYPES).default('mixed'),
+  difficulty: z.enum(DIFFICULTIES).default('junior'),
 });
 
 const startSchema = z.object({ sessionId: objectId });
@@ -30,6 +35,8 @@ const sessionAnswerSchema = z.object({
 });
 
 module.exports = {
+  INTERVIEW_TYPES,
+  DIFFICULTIES,
   registerSchema,
   loginSchema,
   createSessionSchema,

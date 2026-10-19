@@ -218,3 +218,15 @@ textarea.input { height: auto; padding: 12px; line-height: 1.6; resize: vertical
   .app-bar, .no-print { display: none !important; }
   body { background: #fff; color: #000; }
 }
+
+/* ---------- Rubric ---------- */
+.rubric { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.rubric li { display: grid; grid-template-columns: 92px 1fr 52px; align-items: center; gap: 12px; font-size: 14px; }
+.rubric-label { color: var(--muted); }
+.rubric-value { text-align: right; font-weight: 500; }
+.radar { width: 100%; max-width: 300px; height: auto; display: block; }
+.rubric-panel { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 28px; align-items: center; padding: 20px 24px; }
+@media (max-width: 640px) { .rubric-panel { grid-template-columns: 1fr; justify-items: center; } .rubric-panel .rubric { width: 100%; } }
+.options { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+@media (max-width: 560px) { .options { grid-template-columns: 1fr; } }
+select.input { appearance: auto; }

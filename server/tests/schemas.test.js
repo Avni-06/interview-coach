@@ -52,3 +52,15 @@ describe('validators', () => {
     expect(r.data.isAdmin).toBeUndefined();
   });
 });
+
+describe('session options', () => {
+  test('createSession defaults type and difficulty', () => {
+    const r = createSessionSchema.safeParse({ role: 'Frontend Dev' });
+    expect(r.data).toEqual({ role: 'Frontend Dev', interviewType: 'mixed', difficulty: 'junior' });
+  });
+
+  test('createSession rejects unknown type or difficulty', () => {
+    expect(createSessionSchema.safeParse({ role: 'Frontend Dev', interviewType: 'trivia' }).success).toBe(false);
+    expect(createSessionSchema.safeParse({ role: 'Frontend Dev', difficulty: 'god' }).success).toBe(false);
+  });
+});

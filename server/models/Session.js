@@ -10,6 +10,16 @@ const sessionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  interviewType: {
+    type: String,
+    enum: ['mixed', 'technical', 'behavioral', 'hr'],
+    default: 'mixed',
+  },
+  difficulty: {
+    type: String,
+    enum: ['intern', 'junior', 'mid'],
+    default: 'junior',
+  },
   questions: [String],
   answers: [String],
   feedback: [String],

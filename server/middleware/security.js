@@ -3,7 +3,9 @@ const cors = require('cors');
 const express = require('express');
 const rateLimit = require('express-rate-limit');
 
-const DEFAULT_ORIGINS = ['http://localhost:5173', 'https://interview-coach-sable.vercel.app'];
+const DEFAULT_ORIGINS = ['https://interview-coach-sable.vercel.app'];
+// Any local dev server (Vite may pick 5173, 5174, ... or use 127.0.0.1). Auth uses Bearer tokens, not cookies.
+const LOCAL_ORIGIN = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
 
 function applySecurity(app) {
   // Render sits behind a proxy; needed so rate limiting sees the real client IP
@@ -18,8 +20,8 @@ function applySecurity(app) {
     cors({
       origin: (origin, cb) => {
         // no origin = curl / server-to-server / health checks
-        if (!origin || allowed.includes(origin)) return cb(null, true);
-        return cb(Object.assign(new Error('Not allowed by CORS'), { status: 403 }));
+        if (!origin || allowed.includes(origin) || LOCAL_ORIGIN.test(origin)) return cb(null, true);
+        return cb(Object.assign(new Error(`Not allowed by CORS: ${origin}`), { status: 403 }));
       },
     })
   );

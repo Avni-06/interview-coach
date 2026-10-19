@@ -10,3 +10,32 @@ export const average = (arr = []) => {
 
 export const formatDate = (d) =>
   new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+export const RUBRIC = [
+  { key: 'correctness', label: 'Correctness' },
+  { key: 'depth', label: 'Depth' },
+  { key: 'clarity', label: 'Clarity' },
+  { key: 'structure', label: 'Structure' },
+];
+
+export const TYPE_LABELS = {
+  mixed: 'Mixed',
+  technical: 'Technical',
+  behavioral: 'Behavioral',
+  hr: 'HR',
+};
+
+export const LEVEL_LABELS = {
+  intern: 'Intern / fresher',
+  junior: 'Junior (0-2 yrs)',
+  mid: 'Mid-level (3-5 yrs)',
+};
+
+// Average each rubric dimension across answered questions. Returns null for old sessions without rubric data.
+export const averageRubric = (evaluations = []) => {
+  const rated = evaluations.filter((e) => e?.rubric);
+  if (!rated.length) return null;
+  return Object.fromEntries(
+    RUBRIC.map(({ key }) => [key, rated.reduce((sum, e) => sum + e.rubric[key], 0) / rated.length])
+  );
+};

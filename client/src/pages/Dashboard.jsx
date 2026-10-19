@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Monitor, Server, Layers, BarChart3, Container, Compass, Check } from 'lucide-react';
+import { Monitor, Server, Layers, BarChart3, Container, Compass, Check, GraduationCap, Smartphone } from 'lucide-react';
 import API from '../api/axios';
 import useAuthStore from '../store/authStore';
 import Header from '../components/Header';
-import { average, scoreLevel, formatDate } from '../lib/score';
+import { average, scoreLevel, formatDate, TYPE_LABELS, LEVEL_LABELS } from '../lib/score';
 
 const ROLES = [
   { title: 'Frontend Dev', icon: Monitor, desc: 'React, CSS, JavaScript, accessibility' },
@@ -12,6 +12,8 @@ const ROLES = [
   { title: 'Full Stack Dev', icon: Layers, desc: 'End-to-end features across client and server' },
   { title: 'Data Scientist', icon: BarChart3, desc: 'Machine learning, Python, statistics' },
   { title: 'DevOps Engineer', icon: Container, desc: 'CI/CD, Docker, cloud, monitoring' },
+  { title: 'Android Developer', icon: Smartphone, desc: 'Kotlin, Jetpack Compose, app architecture' },
+  { title: 'SDE Intern', icon: GraduationCap, desc: 'Data structures, problem solving, CS fundamentals' },
   { title: 'Product Manager', icon: Compass, desc: 'Strategy, prioritization, user research' },
 ];
 
@@ -19,6 +21,8 @@ const Dashboard = () => {
   const [sessions, setSessions] = useState([]);
   const [sessionsLoaded, setSessionsLoaded] = useState(false);
   const [selectedRole, setSelectedRole] = useState('');
+  const [interviewType, setInterviewType] = useState('mixed');
+  const [difficulty, setDifficulty] = useState('junior');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const { user } = useAuthStore();
@@ -36,7 +40,7 @@ const Dashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const { data } = await API.post('/sessions', { role: selectedRole });
+      const { data } = await API.post('/sessions', { role: selectedRole, interviewType, difficulty });
       navigate(`/interview/${data._id}`);
     } catch (err) {
       setError(err.response?.data?.message || 'Could not start the interview. Try again.');
@@ -82,6 +86,21 @@ const Dashboard = () => {
                   </button>
                 );
               })}
+            </div>
+
+            <div className="options">
+              <div className="field">
+                <label htmlFor="type">Interview type</label>
+                <select id="type" className="input" value={interviewType} onChange={(e) => setInterviewType(e.target.value)}>
+                  {Object.entries(TYPE_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label htmlFor="level">Experience level</label>
+                <select id="level" className="input" value={difficulty} onChange={(e) => setDifficulty(e.target.value)}>
+                  {Object.entries(LEVEL_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                </select>
+              </div>
             </div>
 
             {error && <div className="alert" role="alert" style={{ marginTop: 12 }}>{error}</div>}
