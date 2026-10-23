@@ -37,3 +37,17 @@ describe('questionsSchema', () => {
     expect(schemas.questionsSchema.safeParse({ questions: qs.slice(0, 3) }).success).toBe(false);
   });
 });
+
+describe('followUpSchema', () => {
+  test('accepts the expected shape', () => {
+    expect(schemas.followUpSchema.parse({ followUp: 'What would you do differently?' })).toEqual({ followUp: 'What would you do differently?' });
+  });
+  test('tolerates a renamed key', () => {
+    expect(schemas.followUpSchema.parse({ question: 'How would you test that?' }).followUp).toBe('How would you test that?');
+    expect(schemas.followUpSchema.parse({ q: 'How would you test that?' }).followUp).toBe('How would you test that?');
+  });
+  test('rejects empty or missing questions', () => {
+    expect(schemas.followUpSchema.safeParse({ followUp: '' }).success).toBe(false);
+    expect(schemas.followUpSchema.safeParse({}).success).toBe(false);
+  });
+});

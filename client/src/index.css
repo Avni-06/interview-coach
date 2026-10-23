@@ -283,3 +283,9 @@ select.input { appearance: auto; }
 .mic-live svg { fill: currentColor; animation: mic-pulse 1.4s ease-in-out infinite; }
 @keyframes mic-pulse { 50% { opacity: 0.35; } }
 @media (prefers-reduced-motion: reduce) { .mic-live svg { animation: none; } }
+
+/* ---------- Follow-up ---------- */
+.followup { padding: 18px 20px; }
+.followup-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.followup-q { font-size: 17px; font-weight: 600; line-height: 1.45; margin: 8px 0 14px; }
+.followup-result .fb { padding-left: 0; padding-right: 0; }

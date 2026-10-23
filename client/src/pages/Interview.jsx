@@ -4,6 +4,7 @@ import { CircleCheck, CircleAlert, Lightbulb, Mic, Square, Gauge } from 'lucide-
 import API from '../api/axios';
 import Header from '../components/Header';
 import RubricBars from '../components/RubricBars';
+import FollowUp from '../components/FollowUp';
 import { scoreLevel, scoreLabel } from '../lib/score';
 import { countFillers, wordCount } from '../lib/speech';
 import useSpeech from '../lib/useSpeech';
@@ -209,6 +210,9 @@ const Interview = () => {
                 <h3><Lightbulb size={16} /> Model answer</h3>
                 <p>{feedback.modelAnswer}</p>
               </div>
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <FollowUp key={currentIndex} sessionId={sessionId} questionIndex={currentIndex} />
             </div>
             <div style={{ marginTop: 16 }}>
               <button className="btn btn-primary" onClick={nextQuestion}>

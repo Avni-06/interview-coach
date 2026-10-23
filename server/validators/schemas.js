@@ -35,6 +35,11 @@ const evaluateSchema = z.object({
   answer: z.string().trim().min(1).max(3000),
 });
 
+const followUpSchema = z.object({
+  sessionId: objectId,
+  questionIndex: z.number().int().min(0).max(19),
+});
+
 const sessionAnswerSchema = z.object({
   answer: z.string().trim().min(1).max(3000),
 });
@@ -47,5 +52,6 @@ module.exports = {
   createSessionSchema,
   startSchema,
   evaluateSchema,
+  followUpSchema,
   sessionAnswerSchema,
 };

@@ -297,3 +297,82 @@ describe('ai', () => {
     expect(res.body.message).toMatch(/try again/i);
   });
 });
+
+describe('follow-up questions', () => {
+  const answered = (extra = {}) =>
+    makeSession(ME, {
+      answers: ['my answer'],
+      evaluations: [{ good: 'g', missing: 'no trade-offs', modelAnswer: 'ma' }],
+      ...extra,
+    });
+  const body = { sessionId: SID, questionIndex: 0 };
+
+  test('requires the question to be answered first', async () => {
+    Session.findById.mockResolvedValue(makeSession(ME));
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.status).toBe(400);
+    expect(callJSON).not.toHaveBeenCalled();
+  });
+
+  test('rejects someone else\'s session', async () => {
+    Session.findById.mockResolvedValue(answered({ user: { toString: () => OTHER } }));
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.status).toBe(403);
+    expect(callJSON).not.toHaveBeenCalled();
+  });
+
+  test('generates, stores and returns a follow-up', async () => {
+    Session.findById.mockResolvedValue(answered());
+    callJSON.mockResolvedValue({ followUp: 'How would you handle stale state?' });
+    Session.findOneAndUpdate.mockResolvedValue({ followUps: { 0: { question: 'How would you handle stale state?' } } });
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.status).toBe(200);
+    expect(res.body.followUp).toBe('How would you handle stale state?');
+    expect(Session.findOneAndUpdate.mock.calls[0][1].$set['followUps.0']).toEqual({ question: 'How would you handle stale state?' });
+  });
+
+  test('returns the stored follow-up without calling the LLM again', async () => {
+    Session.findById.mockResolvedValue(answered({ followUps: { 0: { question: 'Stored one?' } } }));
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.body.followUp).toBe('Stored one?');
+    expect(callJSON).not.toHaveBeenCalled();
+  });
+
+  test('when another request saved first, returns the stored question', async () => {
+    Session.findById
+      .mockResolvedValueOnce(answered())
+      .mockResolvedValueOnce({ followUps: { 0: { question: 'Winner question?' } } });
+    callJSON.mockResolvedValue({ followUp: 'Loser question?' });
+    Session.findOneAndUpdate.mockResolvedValue(null);
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.body.followUp).toBe('Winner question?');
+  });
+
+  test('evaluate needs a generated follow-up', async () => {
+    Session.findById.mockResolvedValue(answered());
+    const res = await request(app).post('/api/ai/followup/evaluate').set(auth).send({ ...body, answer: 'x' });
+    expect(res.status).toBe(400);
+    expect(callJSON).not.toHaveBeenCalled();
+  });
+
+  test('evaluate stores the result but leaves the main score untouched', async () => {
+    const s = answered({ scores: [7], followUps: { 0: { question: 'Stored one?' } } });
+    Session.findById.mockResolvedValue(s);
+    callJSON.mockResolvedValue({ score: 4, rubric: { correctness: 4, depth: 4, clarity: 4, structure: 4 }, good: 'g', missing: 'm', modelAnswer: 'ma' });
+    Session.findOneAndUpdate.mockResolvedValue({});
+    const res = await request(app).post('/api/ai/followup/evaluate').set(auth).send({ ...body, answer: 'second try' });
+    expect(res.status).toBe(200);
+    expect(res.body.score).toBe(4);
+    expect(s.scores).toEqual([7]);
+    expect(s.save).not.toHaveBeenCalled();
+    expect(Session.findOneAndUpdate.mock.calls[0][1].$set['followUps.0']).toMatchObject({ question: 'Stored one?', answer: 'second try' });
+  });
+
+  test('follow-up LLM failure returns a clean error', async () => {
+    Session.findById.mockResolvedValue(answered());
+    callJSON.mockRejectedValue(Object.assign(new Error('boom'), { status: 502 }));
+    const res = await request(app).post('/api/ai/followup').set(auth).send(body);
+    expect(res.status).toBe(502);
+    expect(res.body.message).toMatch(/try again/i);
+  });
+});
