@@ -276,3 +276,10 @@ select.input { appearance: auto; }
 
 .progress-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; }
 @media (max-width: 800px) { .progress-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Voice answers ---------- */
+.filler-count { color: var(--mid); }
+.mic-live { border-color: var(--bad); color: var(--bad); }
+.mic-live svg { fill: currentColor; animation: mic-pulse 1.4s ease-in-out infinite; }
+@keyframes mic-pulse { 50% { opacity: 0.35; } }
+@media (prefers-reduced-motion: reduce) { .mic-live svg { animation: none; } }

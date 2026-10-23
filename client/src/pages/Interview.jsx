@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { CircleCheck, CircleAlert, Lightbulb } from 'lucide-react';
+import { CircleCheck, CircleAlert, Lightbulb, Mic, Square, Gauge } from 'lucide-react';
 import API from '../api/axios';
 import Header from '../components/Header';
 import RubricBars from '../components/RubricBars';
 import { scoreLevel, scoreLabel } from '../lib/score';
+import { countFillers, wordCount } from '../lib/speech';
+import useSpeech from '../lib/useSpeech';
 
 const MAX_LEN = 3000;
 
@@ -21,6 +23,14 @@ const Interview = () => {
   const [error, setError] = useState('');
   const [loadError, setLoadError] = useState('');
   const [attempt, setAttempt] = useState(0);
+  const [delivery, setDelivery] = useState(null);
+
+  const appendSpoken = useCallback((text) => {
+    if (!text) return;
+    setAnswer((prev) => `${prev.replace(/\s+$/, '')}${prev.trim() ? ' ' : ''}${text}`.slice(0, MAX_LEN));
+  }, []);
+  const speech = useSpeech(appendSpoken);
+  const fillers = countFillers(answer);
 
   useEffect(() => {
     let cancelled = false;
@@ -41,11 +51,13 @@ const Interview = () => {
 
   const submitAnswer = async () => {
     if (!answer.trim()) return;
+    speech.stop();
     setEvaluating(true);
     setError('');
     try {
       const { data } = await API.post('/ai/evaluate', { sessionId, questionIndex: currentIndex, answer });
       setFeedback(data);
+      setDelivery({ words: wordCount(answer), ...countFillers(answer) });
     } catch (err) {
       setError(err.response?.data?.message || 'Could not evaluate your answer. Try again.');
     } finally {
@@ -60,6 +72,7 @@ const Interview = () => {
       setCurrentIndex((i) => i + 1);
       setAnswer('');
       setFeedback(null);
+      setDelivery(null);
       setError('');
     }
   };
@@ -127,11 +140,34 @@ const Interview = () => {
               disabled={evaluating}
             />
             <div className="answer-meta">
-              <span className="hint num">{answer.length} / {MAX_LEN}</span>
-              <button className="btn btn-primary" onClick={submitAnswer} disabled={evaluating || !answer.trim()}>
-                {evaluating ? 'Evaluating…' : 'Submit answer'}
-              </button>
+              <span className="hint num">
+                {answer.length} / {MAX_LEN}
+                {fillers.total > 0 && <span className="filler-count"> · {fillers.total} filler {fillers.total === 1 ? 'word' : 'words'}</span>}
+              </span>
+              <div className="row-actions">
+                {speech.supported && (
+                  <button
+                    type="button"
+                    className={`btn btn-secondary${speech.listening ? ' mic-live' : ''}`}
+                    onClick={speech.listening ? speech.stop : speech.start}
+                    disabled={evaluating}
+                    aria-pressed={speech.listening}
+                  >
+                    {speech.listening ? <Square size={14} /> : <Mic size={16} />}
+                    {speech.listening ? 'Stop' : 'Speak'}
+                  </button>
+                )}
+                <button className="btn btn-primary" onClick={submitAnswer} disabled={evaluating || !answer.trim()}>
+                  {evaluating ? 'Evaluating…' : 'Submit answer'}
+                </button>
+              </div>
             </div>
+            {speech.listening && (
+              <p className="hint" role="status" style={{ marginTop: 8 }}>
+                Listening… {speech.interim && <em>{speech.interim}</em>}
+              </p>
+            )}
+            {speech.error && <div className="alert" role="alert" style={{ marginTop: 12 }}>{speech.error}</div>}
             {error && <div className="alert" role="alert" style={{ marginTop: 12 }}>{error}</div>}
           </div>
         )}
@@ -146,6 +182,19 @@ const Interview = () => {
               {feedback.rubric && (
                 <div className="fb">
                   <RubricBars rubric={feedback.rubric} />
+                </div>
+              )}
+              {delivery && (
+                <div className="fb">
+                  <h3><Gauge size={16} /> Delivery</h3>
+                  <p>
+                    {delivery.words} words.{' '}
+                    {delivery.total === 0
+                      ? 'No filler words detected.'
+                      : `${delivery.total} filler ${delivery.total === 1 ? 'word' : 'words'}: ${delivery.top
+                          .map((t) => `"${t.word}" ×${t.count}`)
+                          .join(', ')}.`}
+                  </p>
                 </div>
               )}
               <div className="fb fb-good">
