@@ -3,7 +3,14 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
 jest.mock('../models/User', () => ({ findById: jest.fn(), findOne: jest.fn(), create: jest.fn() }));
-jest.mock('../models/Session', () => ({ findById: jest.fn(), find: jest.fn(), create: jest.fn(), findOneAndUpdate: jest.fn() }));
+jest.mock('../models/Session', () => ({
+  findById: jest.fn(),
+  find: jest.fn(),
+  create: jest.fn(),
+  findOneAndUpdate: jest.fn(),
+  deleteOne: jest.fn(),
+  countDocuments: jest.fn(),
+}));
 jest.mock('../utils/llm', () => ({
   callJSON: jest.fn(),
   safeText: (s) => String(s),
@@ -19,6 +26,14 @@ const OTHER = '2'.repeat(24);
 const SID = 'a'.repeat(24);
 const token = jwt.sign({ id: ME }, process.env.JWT_SECRET);
 const auth = { Authorization: `Bearer ${token}` };
+
+// A chainable stand-in for a Mongoose query: .select().sort().limit()... then await
+const query = (result) => {
+  const q = {};
+  ['select', 'sort', 'skip', 'limit', 'lean'].forEach((m) => { q[m] = jest.fn(() => q); });
+  q.then = (resolve, reject) => Promise.resolve(result).then(resolve, reject);
+  return q;
+};
 
 const makeSession = (owner, extra = {}) => ({
   _id: SID,
@@ -109,6 +124,67 @@ describe('sessions', () => {
     Session.findById.mockResolvedValue(makeSession(OTHER));
     const res = await request(app).get(`/api/sessions/${SID}`).set(auth);
     expect(res.status).toBe(403);
+  });
+});
+
+describe('history, stats and delete', () => {
+  test('list is paginated and reports the total in X-Total-Count', async () => {
+    const q = query([{ _id: SID, role: 'Frontend Dev', scores: [7] }]);
+    Session.find.mockReturnValue(q);
+    Session.countDocuments.mockResolvedValue(23);
+    const res = await request(app).get('/api/sessions?page=3&limit=10').set(auth);
+    expect(res.status).toBe(200);
+    expect(res.headers['x-total-count']).toBe('23');
+    expect(q.skip).toHaveBeenCalledWith(20);
+    expect(q.limit).toHaveBeenCalledWith(10);
+  });
+
+  test('list clamps an oversized limit to 100', async () => {
+    const q = query([]);
+    Session.find.mockReturnValue(q);
+    Session.countDocuments.mockResolvedValue(0);
+    await request(app).get('/api/sessions?limit=5000').set(auth);
+    expect(q.limit).toHaveBeenCalledWith(100);
+  });
+
+  test('stats are computed from the user\'s own sessions', async () => {
+    Session.find.mockReturnValue(
+      query([{ _id: SID, role: 'Frontend Dev', createdAt: '2026-10-01T10:00:00Z', scores: [6, 8], evaluations: [] }])
+    );
+    const res = await request(app).get('/api/sessions/stats').set(auth);
+    expect(res.status).toBe(200);
+    expect(res.body.totals).toEqual({ sessions: 1, questions: 2, average: 7 });
+    expect(Session.find).toHaveBeenCalledWith({ user: ME });
+  });
+
+  test('stats route is not swallowed by /:id', async () => {
+    Session.find.mockReturnValue(query([]));
+    const res = await request(app).get('/api/sessions/stats').set(auth);
+    expect(res.status).toBe(200);
+    expect(Session.findById).not.toHaveBeenCalled();
+  });
+
+  test('delete removes only the caller\'s own session', async () => {
+    Session.deleteOne.mockResolvedValue({ deletedCount: 1 });
+    const res = await request(app).delete(`/api/sessions/${SID}`).set(auth);
+    expect(res.status).toBe(200);
+    expect(Session.deleteOne).toHaveBeenCalledWith({ _id: SID, user: ME });
+  });
+
+  test('deleting someone else\'s or a missing session returns 404', async () => {
+    Session.deleteOne.mockResolvedValue({ deletedCount: 0 });
+    const res = await request(app).delete(`/api/sessions/${SID}`).set(auth);
+    expect(res.status).toBe(404);
+  });
+
+  test('delete rejects a malformed id', async () => {
+    const res = await request(app).delete('/api/sessions/nope').set(auth);
+    expect(res.status).toBe(400);
+  });
+
+  test('delete requires auth', async () => {
+    const res = await request(app).delete(`/api/sessions/${SID}`);
+    expect(res.status).toBe(401);
   });
 });
 

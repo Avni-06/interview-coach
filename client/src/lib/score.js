@@ -39,3 +39,10 @@ export const averageRubric = (evaluations = []) => {
     RUBRIC.map(({ key }) => [key, rated.reduce((sum, e) => sum + e.rubric[key], 0) / rated.length])
   );
 };
+
+export const FOCUS_TIPS = {
+  correctness: 'Revisit the fundamentals behind the questions you missed. Check each claim before you say it.',
+  depth: 'Go beyond definitions: add a concrete example, a trade-off, or a failure you have handled.',
+  clarity: 'Lead with the answer in one sentence, then support it. Cut filler words and hedging.',
+  structure: 'Use a simple frame: claim, reasoning, example. For behavioral questions use Situation, Task, Action, Result.',
+};

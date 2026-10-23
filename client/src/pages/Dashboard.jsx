@@ -153,7 +153,10 @@ const Dashboard = () => {
           </section>
 
           <section aria-labelledby="progress-title">
-            <h2 id="progress-title" className="section-title">Your progress</h2>
+            <div className="section-head">
+              <h2 id="progress-title" className="section-title">Your progress</h2>
+              <Link to="/progress">Details</Link>
+            </div>
             <div className="panel stats" style={{ marginTop: 12 }}>
               <div className="stat">
                 <div className="stat-value">{scored.length}</div>
@@ -169,7 +172,10 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <h2 className="section-title" style={{ marginTop: 28 }}>Recent sessions</h2>
+            <div className="section-head" style={{ marginTop: 28 }}>
+              <h2 className="section-title">Recent sessions</h2>
+              <Link to="/history">View all</Link>
+            </div>
             <div className="panel session-list">
               {!sessionsLoaded ? (
                 <div className="empty">Loading sessions…</div>
