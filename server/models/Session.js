@@ -33,6 +33,7 @@ const sessionSchema = new mongoose.Schema({
   feedback: [String],
   scores: [Number],
   evaluations: [mongoose.Schema.Types.Mixed], // full AI feedback: score, good, missing, modelAnswer
+  followUps: mongoose.Schema.Types.Mixed, // practice follow-ups keyed by question index: { question, answer, evaluation }
   completed: {
     type: Boolean,
     default: false,

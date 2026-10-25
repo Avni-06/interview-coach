@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { ClipboardCheck, LogOut } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 import ThemeToggle from './ThemeToggle';
@@ -9,6 +9,12 @@ export const Brand = ({ to = '/dashboard' }) => (
     Interview Coach
   </Link>
 );
+
+const NAV = [
+  { to: '/dashboard', label: 'Practice' },
+  { to: '/progress', label: 'Progress' },
+  { to: '/history', label: 'History' },
+];
 
 const Header = ({ children }) => {
   const { user, logout } = useAuthStore();
@@ -23,6 +29,15 @@ const Header = ({ children }) => {
     <header className="app-bar no-print">
       <div className="app-bar-inner">
         <Brand />
+        {!children && (
+          <nav className="bar-nav" aria-label="Main">
+            {NAV.map((n) => (
+              <NavLink key={n.to} to={n.to} className={({ isActive }) => (isActive ? 'active' : undefined)}>
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
+        )}
         <div className="bar-actions">
           {children}
           {user?.name && <span className="bar-user">{user.name}</span>}

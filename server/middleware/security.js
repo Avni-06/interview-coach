@@ -23,6 +23,7 @@ function applySecurity(app) {
         if (!origin || allowed.includes(origin) || LOCAL_ORIGIN.test(origin)) return cb(null, true);
         return cb(Object.assign(new Error(`Not allowed by CORS: ${origin}`), { status: 403 }));
       },
+      exposedHeaders: ['X-Total-Count'],
     })
   );
 
