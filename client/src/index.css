@@ -114,22 +114,24 @@ textarea.input { height: auto; padding: 12px; line-height: 1.6; resize: vertical
 .bar-nav a:hover { background: var(--sunken); color: var(--ink); text-decoration: none; }
 .bar-nav a.active { color: var(--ink); background: var(--sunken); }
 @media (max-width: 640px) {
-  .app-bar-inner { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 6px; row-gap: 6px; }
+  .app-bar-inner { flex-wrap: wrap; height: auto; padding-top: 10px; padding-bottom: 8px; row-gap: 6px; }
+  .bar-nav a { padding: 6px 12px; }
   .bar-nav { order: 3; width: 100%; margin: 0; }
 }
 .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .section-head a { font-size: 14px; }
-.stats-4 { grid-template-columns: repeat(4, 1fr); }
+.stats.stats-4 { grid-template-columns: repeat(4, 1fr); }
 @media (max-width: 560px) {
-  .stats-4 { grid-template-columns: repeat(2, 1fr); }
+  .stats.stats-4 { grid-template-columns: repeat(2, 1fr); }
   .stats-4 .stat:nth-child(2) { border-right: 0; }
   .stats-4 .stat:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
 }
 .stat-delta { font-size: 13px; font-weight: 500; }
 .trend { display: block; width: 100%; height: auto; }
 .trend .grid { stroke: var(--line); stroke-width: 1; }
-.trend .axis-label { fill: var(--muted); font-size: 11px; }
+.trend .axis-label { fill: var(--muted); font-size: 14px; }
 .trend .line { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+@media (max-width: 560px) { .trend .axis-label { font-size: 20px; } }
 .trend .dot { fill: var(--surface); stroke: var(--accent); stroke-width: 2; }
 .pad { padding: 16px 20px; }
 .focus-box { margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 6px 6px 0; font-size: 14px; }
