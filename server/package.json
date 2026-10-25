@@ -12,8 +12,6 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@google/genai": "^2.7.0",
-    "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "dotenv": "^16.4.5",
@@ -23,12 +21,11 @@
     "helmet": "^8.3.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.3",
-    "openai": "^6.39.0",
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "nodemon": "^3.1.14",
     "jest": "^30.5.2",
+    "nodemon": "^3.1.14",
     "supertest": "^7.3.1"
   },
   "jest": {

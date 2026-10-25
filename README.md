@@ -91,6 +91,21 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ---
 
+### Run with Docker
+
+Needs only Docker. This starts MongoDB, the API and the web app together.
+
+```bash
+cp .env.example .env        # then set JWT_SECRET and GROQ_API_KEY
+docker compose up --build
+```
+
+- Web app: [http://localhost:3000](http://localhost:3000)
+- API health check: [http://localhost:8000/api/health](http://localhost:8000/api/health)
+- Data is kept in the `mongo-data` volume. `docker compose down -v` wipes it.
+
+---
+
 ## Project Structure
 
 ```
@@ -120,11 +135,15 @@ interview-coach/
 |--------|----------|-------------|------|
 | POST | `/api/auth/register` | Register new user | No |
 | POST | `/api/auth/login` | Login user | No |
-| GET | `/api/sessions` | Get all sessions | Yes |
+| GET | `/api/sessions?page=&limit=` | List your sessions, paginated (`X-Total-Count` header) | Yes |
 | POST | `/api/sessions` | Create new session | Yes |
 | GET | `/api/sessions/:id` | Get single session | Yes |
 | POST | `/api/ai/start` | Generate AI questions | Yes |
 | POST | `/api/ai/evaluate` | Evaluate answer with AI | Yes |
+| POST | `/api/ai/followup` | Generate a follow-up question for an answered question | Yes |
+| POST | `/api/ai/followup/evaluate` | Evaluate a follow-up answer (practice, not scored) | Yes |
+| GET | `/api/sessions/stats` | Progress analytics: trend, per-role averages, skill breakdown | Yes |
+| DELETE | `/api/sessions/:id` | Delete one of your sessions | Yes |
 
 ---
 
