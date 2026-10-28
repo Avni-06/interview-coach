@@ -40,10 +40,6 @@ const followUpSchema = z.object({
   questionIndex: z.number().int().min(0).max(19),
 });
 
-const sessionAnswerSchema = z.object({
-  answer: z.string().trim().min(1).max(3000),
-});
-
 module.exports = {
   INTERVIEW_TYPES,
   DIFFICULTIES,
@@ -53,5 +49,4 @@ module.exports = {
   startSchema,
   evaluateSchema,
   followUpSchema,
-  sessionAnswerSchema,
 };
