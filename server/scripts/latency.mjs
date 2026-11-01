@@ -18,3 +18,5 @@ for (let i = 0; i < 10; i++) {
   ev.push(e.ms);
 }
 console.log('generate:', stat(gen)); console.log('evaluate:', stat(ev));
+
+// Usage: start the server, then run: node server/scripts/latency.mjs
