@@ -1,14 +1,16 @@
-# Interview Coach
-
-> A mock interview app that scores your answers on four skills, tailors questions to your job description or resume, and tracks how you improve over time.
+# AI Mock Interview Coach
 
 [![CI](https://github.com/Avni-06/interview-coach/actions/workflows/ci.yml/badge.svg)](https://github.com/Avni-06/interview-coach/actions/workflows/ci.yml)
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-2548d9?style=for-the-badge&logo=vercel&logoColor=white)](https://interview-coach-sable.vercel.app)
-[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org)
-[![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)](https://react.dev)
-[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://mongodb.com)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20App-2548d9?style=flat&logo=vercel&logoColor=white)](https://interview-coach-sable.vercel.app)
+[![Node.js](https://img.shields.io/badge/Node.js-22+-339933?style=flat&logo=node.js&logoColor=white)](https://nodejs.org)
+[![React](https://img.shields.io/badge/React-19-61DAFB?style=flat&logo=react&logoColor=black)](https://react.dev)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat&logo=mongodb&logoColor=white)](https://mongodb.com)
 
-**Live:** [interview-coach-sable.vercel.app](https://interview-coach-sable.vercel.app). The backend runs on a free Render instance, so the first request after a quiet period can take about 30 seconds.
+A mock interview app that scores your answers on four skills, tailors questions to your job description or resume, and tracks how you improve over time.
+
+**Live demo:** [interview-coach-sable.vercel.app](https://interview-coach-sable.vercel.app)
+
+> The backend runs on a free Render instance and sleeps when idle, so the first request after a quiet period can take 20-30 seconds.
 
 <p align="center">
   <img src="docs/screenshots/dashboard-light.png" alt="Dashboard: choose a role, interview type and level" width="49%" />
@@ -56,7 +58,7 @@ flowchart LR
 | Database | MongoDB Atlas via Mongoose |
 | AI | Groq API, `openai/gpt-oss-120b` by default (`GROQ_MODEL` overrides it) |
 | Auth | JWT, bcrypt |
-| Delivery | GitHub Actions CI, Vercel (client), Render (server), Docker Compose for local |
+| Delivery | GitHub Actions CI, Vercel (client), Render (server) |
 
 ---
 
@@ -84,7 +86,9 @@ Helmet headers, a CORS allowlist, rate limits (stricter on auth), a 100 KB body 
 
 ## Testing and CI
 
-77 tests (Jest + Supertest) cover validation schemas, LLM response parsing, the API routes including ownership and race conditions, analytics, text redaction and follow-ups. GitHub Actions runs the server tests and a client build on every push.
+77 tests (Jest + Supertest) cover validation schemas, LLM response parsing, the API routes including ownership and race conditions, analytics, text redaction and follow-ups. GitHub Actions runs the server tests and a client build on every push to `main` and on every pull request.
+
+**Performance.** Measured locally over 10 runs with `server/scripts/latency.mjs`: question generation averaged about 1.0 s and answer evaluation about 0.8 s, including the Groq round trip.
 
 ---
 
@@ -121,24 +125,19 @@ npm run dev
 
 Open [http://localhost:5173](http://localhost:5173).
 
-### Run with Docker
-
-Needs only Docker. This starts MongoDB, the API and the web app together.
-
-```bash
-cp .env.example .env        # then set JWT_SECRET and GROQ_API_KEY
-docker compose up --build
-```
-
-- Web app: [http://localhost:3000](http://localhost:3000)
-- API health check: [http://localhost:8000/api/health](http://localhost:8000/api/health)
-- Data is kept in the `mongo-data` volume. `docker compose down -v` wipes it.
-
 ### Run the tests
 
 ```bash
 cd server && npm test
 ```
+
+### Measure API latency
+
+Start the server, then in another terminal:
+```bash
+node server/scripts/latency.mjs
+```
+This creates a throwaway user and 10 sessions, so point `MONGO_URI` at a test database first.
 
 ---
 
@@ -161,6 +160,7 @@ interview-coach/
 │   ├── middleware/          # Auth, validation, security
 │   ├── models/              # User, Session
 │   ├── routes/              # Auth, session, AI routes
+│   ├── scripts/             # Latency benchmark
 │   ├── tests/               # Jest + Supertest
 │   ├── utils/               # LLM client, analytics, text redaction
 │   ├── validators/          # Zod schemas
@@ -195,7 +195,7 @@ interview-coach/
 | Service | Platform |
 |---------|----------|
 | Frontend | Vercel |
-| Backend | Render (free tier) |
+| Backend | Render (free tier), auto-deploys from `main` |
 | Database | MongoDB Atlas (free tier) |
 
 ---
@@ -215,6 +215,7 @@ interview-coach/
 - Show follow-ups in the report and export it as PDF
 - Password reset and email verification
 - Timed mock interviews
+- Containerized local setup with Docker Compose
 - Load and error monitoring
 
 ---
@@ -224,5 +225,5 @@ interview-coach/
 MIT. Feel free to use this project as inspiration for your own portfolio.
 
 <div align="center">
-  Built by <a href="https://github.com/Avni-06">Avni</a>
+  Built by <a href="https://github.com/Avni-06/interview-coach">Avni</a>
 </div>
